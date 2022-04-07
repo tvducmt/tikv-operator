@@ -5,8 +5,8 @@
 replicaCount: 1
 
 image:
-  repository: pingcap/tikv-operator
-  pullPolicy: IfNotPresent
+  repository: ztp-repo-sandbox.zpapps.vn/test/tikv-operator
+  pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   # tag: latest
   args:

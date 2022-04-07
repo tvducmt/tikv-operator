@@ -15,8 +15,8 @@ GO := go
 
 ARCH ?= $(shell ${GO} env GOARCH)
 OS ?= $(shell ${GO} env GOOS)
-IMAGE_REPO ?= localhost:5000/tikv
-IMAGE_TAG ?= latest
+IMAGE_REPO ?= ztp-repo-sandbox.zpapps.vn/test
+IMAGE_TAG ?= 0.1.0
 
 ALL_TARGETS := cmd/tikv-controller-manager cmd/pd-discovery
 GIT_VERSION = $(shell ./hack/version.sh | awk -F': ' '/^GIT_VERSION:/ {print $$2}')
@@ -49,10 +49,11 @@ test:
 .PHONY: test
 
 # OS/ARCH for binary in image is hardcoded to linux/amd64
-image: GOOS = linux
-image: GOARCH = amd64
-image: build
+docker-deploy: GOOS = linux
+docker-deploy: GOARCH = amd64
+docker-deploy: build
 	docker build -t "${IMAGE_REPO}/tikv-operator:${IMAGE_TAG}" .
+	docker push "${IMAGE_REPO}/tikv-operator:${IMAGE_TAG}"
 .PHONY: image
 
 e2e-examples:
