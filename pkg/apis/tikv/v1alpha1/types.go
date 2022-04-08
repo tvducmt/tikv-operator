@@ -97,6 +97,36 @@ type TikvClusterList struct {
 }
 
 // +k8s:openapi-gen=true
+// CommonListenerSpec defines the common building block for Listener type
+type CommonListenerSpec struct {
+	Type          SecurityProtocol `json:"type"`
+	Name          string           `json:"name"`
+	ContainerPort int32            `json:"containerPort"`
+}
+
+func (c ExternalListenerConfig) GetAccessMethod() corev1.ServiceType {
+	if c.AccessMethod == "" {
+		return corev1.ServiceTypeLoadBalancer
+	}
+	return c.AccessMethod
+}
+
+// +k8s:openapi-gen=true
+// ExternalListenerConfig defines the external listener config
+type ExternalListenerConfig struct {
+	CommonListenerSpec   `json:",inline"`
+	ExternalStartingPort int32              `json:"externalStartingPort"`
+	AccessMethod         corev1.ServiceType `json:"accessMethod,omitempty"`
+}
+
+// +k8s:openapi-gen=true
+//ListenersConfig defines the Kafka listener types
+type ListenersConfig struct {
+	ExternalListeners  []ExternalListenerConfig `json:"externalListeners,omitempty"`
+	ServiceAnnotations map[string]string        `json:"serviceAnnotations,omitempty"`
+}
+
+// +k8s:openapi-gen=true
 // TikvClusterSpec describes the attributes that a user creates on a tikv cluster
 type TikvClusterSpec struct {
 	// Discovery spec
@@ -108,6 +138,7 @@ type TikvClusterSpec struct {
 	// TiKV cluster spec
 	TiKV TiKVSpec `json:"tikv"`
 
+	ListenersConfig ListenersConfig `json:"listenersConfig"`
 	// Indicates that the tikv cluster is paused and will not be processed by
 	// the controller.
 	// +optional

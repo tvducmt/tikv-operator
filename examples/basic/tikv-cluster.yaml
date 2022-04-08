@@ -23,3 +23,11 @@ spec:
     requests:
       storage: "1Gi"
     config: {}
+  listenersConfig:
+    externalListener:
+      - type: "plaintext"
+        name: external
+        externalListeners:
+        accessMethod: NodePort
+        containerPort: 9094
+        externalStartingPort: 19040

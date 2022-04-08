@@ -113,35 +113,68 @@ func (tkmm *tikvMemberManager) Sync(tc *v1alpha1.TikvCluster) error {
 		return controller.RequeueErrorf("TikvCluster: [%s/%s], waiting for PD cluster running", ns, tcName)
 	}
 
-	svcList := []SvcConfig{
-		{
-			Name:       "peer",
-			Port:       20161,
-			Headless:   false,
-			SvcLabel:   func(l label.Label) label.Label { return l.TiKV() },
-			MemberName: controller.TiKVPeerMemberName,
-			Type:       corev1.ServiceTypeNodePort,
-		},
+	if err := tkmm.syncStatefulSetForTikvCluster(tc); err != nil {
+		return err
 	}
-	for _, svc := range svcList {
-		if err := tkmm.syncServiceForTikvCluster(tc, svc); err != nil {
+
+	svcList := []*corev1.Service{}
+	if tc.Spec.ListenersConfig.ExternalListeners != nil {
+		fmt.Println("tc.Spec.ListenersConfig.ExternalListeners")
+		for _, eListener := range tc.Spec.ListenersConfig.ExternalListeners {
+			if eListener.GetAccessMethod() == corev1.ServiceTypeNodePort {
+				fmt.Println("Implementing...")
+				selector, _ := label.New().Instance(tc.GetInstanceName()).Selector()
+				fmt.Println("selector: ", selector)
+				labelsTikv, err := label.Label(LabelsTikv(tcName)).Selector()
+				if err != nil {
+					fmt.Println("labelsTikv err: ", err)
+				}
+				fmt.Println("labelsTikv: ", labelsTikv)
+				pods, err := tkmm.podLister.Pods(ns).List(labelsTikv)
+				if err != nil {
+					return err
+				}
+				for idx, pod := range pods {
+					podName := pod.GetName()
+					nodePortExternalIP := pod.Status.HostIP
+					fmt.Println("podName: ", podName, nodePortExternalIP)
+					svcList = append(svcList, getNewNodeportServiceForTikvCluster(tc, int32(idx), eListener, nodePortExternalIP))
+				}
+			}
+		}
+	}
+
+	svcConfig := SvcConfig{
+		Name:       "peer",
+		Port:       20161,
+		Headless:   true,
+		SvcLabel:   func(l label.Label) label.Label { return l.TiKV() },
+		MemberName: controller.TiKVPeerMemberName,
+	}
+
+	newSvc := getNewServiceForTikvCluster(tc, svcConfig)
+	svcList = append(svcList, newSvc)
+
+	for i := 0; i < len(svcList); i++ {
+		if err := tkmm.syncServiceForTikvCluster(tc, svcList[i]); err != nil {
 			return err
 		}
 	}
-	return tkmm.syncStatefulSetForTikvCluster(tc)
+
+	return nil
 }
 
-func (tkmm *tikvMemberManager) syncServiceForTikvCluster(tc *v1alpha1.TikvCluster, svcConfig SvcConfig) error {
+func (tkmm *tikvMemberManager) syncServiceForTikvCluster(tc *v1alpha1.TikvCluster, newSvc *corev1.Service) error {
 	if tc.Spec.Paused {
 		klog.V(4).Infof("tikv cluster %s/%s is paused, skip syncing for tikv service", tc.GetNamespace(), tc.GetName())
 		return nil
 	}
 
 	ns := tc.GetNamespace()
-	tcName := tc.GetName()
+	fmt.Println("newSvc.GetName(): ", newSvc.GetName())
 
-	newSvc := getNewServiceForTikvCluster(tc, svcConfig)
-	oldSvcTmp, err := tkmm.svcLister.Services(ns).Get(svcConfig.MemberName(tcName))
+	oldSvcTmp, err := tkmm.svcLister.Services(ns).Get(newSvc.GetName())
+	fmt.Println("oldSvcTmp: ", oldSvcTmp.GetName())
 	if errors.IsNotFound(err) {
 		err = controller.SetServiceLastAppliedConfigAnnotation(newSvc)
 		if err != nil {
@@ -290,18 +323,14 @@ func getNewServiceForTikvCluster(tc *v1alpha1.TikvCluster, svcConfig SvcConfig) 
 					Port:       svcConfig.Port,
 					TargetPort: intstr.FromInt(int(svcConfig.Port)),
 					Protocol:   corev1.ProtocolTCP,
-					NodePort:   31704,
 				},
 			},
 			Selector:                 svcLabel,
 			PublishNotReadyAddresses: true,
-			Type:                     svcConfig.Type,
 		},
 	}
 	if svcConfig.Headless {
 		svc.Spec.ClusterIP = "None"
-	} else if svcConfig.Type != "" {
-		svc.Spec.Type = svcConfig.Type
 	} else {
 		svc.Spec.Type = corev1.ServiceTypeClusterIP
 	}
