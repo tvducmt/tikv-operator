@@ -24,7 +24,7 @@ spec:
       storage: "1Gi"
     config: {}
   listenersConfig:
-    externalListener:
+    externalListeners:
       - type: "plaintext"
         name: external
         externalListeners:

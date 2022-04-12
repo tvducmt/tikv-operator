@@ -82,6 +82,7 @@ type TikvCluster struct {
 	Spec TikvClusterSpec `json:"spec"`
 
 	// +k8s:openapi-gen=false
+	// +kubebuilder:validation:Optional
 	// Most recently observed status of the tikv cluster
 	Status TikvClusterStatus `json:"status"`
 }
@@ -141,6 +142,7 @@ type TikvClusterSpec struct {
 	// TiKV cluster spec
 	TiKV TiKVSpec `json:"tikv"`
 
+	// +kubebuilder:validation:Optional
 	ListenersConfig ListenersConfig `json:"listenersConfig"`
 	// Indicates that the tikv cluster is paused and will not be processed by
 	// the controller.
@@ -163,8 +165,8 @@ type TikvClusterSpec struct {
 	// cluster component is needed to reload the configuration change.
 	// UpdateStrategyRollingUpdate will create a new ConfigMap with the new configuration and rolling-update the
 	// related components to use the new ConfigMap, that is, the new configuration will be applied automatically.
-	// +kubebuilder:validation:Enum="InPlace,RollingUpdate"
-	// +kubebuilder:default=InPlacne
+	// +kubebuilder:validation:Enum=InPlace;RollingUpdate
+	// +kubebuilder:default=InPlace
 	ConfigUpdateStrategy ConfigUpdateStrategy `json:"configUpdateStrategy,omitempty"`
 
 	// Whether Hostnetwork is enabled for TiDB cluster Pods

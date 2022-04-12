@@ -21,6 +21,7 @@ IMAGE_TAG ?= 0.1.0
 ALL_TARGETS := cmd/tikv-controller-manager cmd/pd-discovery
 GIT_VERSION = $(shell ./hack/version.sh | awk -F': ' '/^GIT_VERSION:/ {print $$2}')
 
+CRD_OPTIONS ?= "crd:allowDangerousTypes=true,preserveUnknownFields=false"
 ifneq ($(VERSION),)
 	LDFLAGS += -X k8s.io/component-base/version.gitVersion=${VERSION}
 else
@@ -70,4 +71,10 @@ generate: controller-gen## Generate code containing DeepCopy, DeepCopyInto, and 
 
 .PHONY: manifests
 manifests:## Generate CustomResourceDefinition objects.
-	$(CONTROLLER_GEN) crd:allowDangerousTypes=true paths="./..." output:crd:artifacts:config=config/crd/bases
+	$(CONTROLLER_GEN) $(CRD_OPTIONS) paths="./..." output:crd:artifacts:config=config/crd/bases
+
+
+uninstall:
+	helm uninstall tikv-operator
+install: docker-deploy
+	helm install tikv-operator charts/tikv-operator

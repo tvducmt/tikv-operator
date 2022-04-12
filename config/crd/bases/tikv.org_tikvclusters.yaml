@@ -1,9 +1,10 @@
+
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.8.0
+    controller-gen.kubebuilder.io/version: (devel)
   creationTimestamp: null
   name: tikvclusters.tikv.org
 spec:
@@ -633,7 +634,7 @@ spec:
                   add or override selectors upon this respectively
                 type: object
               configUpdateStrategy:
-                default: InPlacne
+                default: InPlace
                 description: ConfigUpdateStrategy determines how the configuration
                   change is applied to the cluster. UpdateStrategyInPlace will update
                   the ConfigMap of configuration in-place and an extra rolling-update
@@ -643,7 +644,8 @@ spec:
                   the new ConfigMap, that is, the new configuration will be applied
                   automatically.
                 enum:
-                - InPlace,RollingUpdate
+                - InPlace
+                - RollingUpdate
                 type: string
               discovery:
                 description: Discovery spec
@@ -1670,11 +1672,11 @@ spec:
                             format: int64
                             type: integer
                           low-space-ratio:
-                            description: "high space stage         transition stage
-                              \          low space stage |--------------------|-----------------------------|-------------------------|
-                              ^                    ^                             ^
-                              \                        ^ 0       HighSpaceRatio *
-                              capacity       LowSpaceRatio * capacity          capacity
+                            description: "     high space stage         transition
+                              stage           low space stage   |--------------------|-----------------------------|-------------------------|
+                              \  ^                    ^                             ^
+                              \                        ^   0       HighSpaceRatio
+                              * capacity       LowSpaceRatio * capacity          capacity
                               \n LowSpaceRatio is the lowest usage ratio of store
                               which regraded as low space. When in low space, store
                               region score increases to very large and varies inversely
@@ -3980,31 +3982,33 @@ spec:
                               master-key:
                                 description: "Specifies master key if encryption is
                                   enabled. There are three types of master key: \n
-                                  * \"plaintext\": \n Plaintext as master key means
-                                  no master key is given and only applicable when
-                                  encryption is not enabled, i.e. data-encryption-method
-                                  = \"plaintext\". This type doesn't have sub-config
-                                  items. Example: \n [security.encryption.master-key]
-                                  type = \"plaintext\" \n * \"kms\": \n Use a KMS
-                                  service to supply master key. Currently only AWS
-                                  KMS is supported. This type of master key is recommended
-                                  for production use. Example: \n [security.encryption.master-key]
-                                  type = \"kms\" ## KMS CMK key id. Must be a valid
-                                  KMS CMK where the TiKV process has access to. ##
-                                  In production is recommended to grant access of
-                                  the CMK to TiKV using IAM. key-id = \"1234abcd-12ab-34cd-56ef-1234567890ab\"
-                                  ## AWS region of the KMS CMK. region = \"us-west-2\"
-                                  ## (Optional) AWS KMS service endpoint. Only required
-                                  when non-default KMS endpoint is ## desired. endpoint
-                                  = \"https://kms.us-west-2.amazonaws.com\" \n * \"file\":
-                                  \n Supply a custom encryption key stored in a file.
-                                  It is recommended NOT to use in production, as it
-                                  breaks the purpose of encryption at rest, unless
-                                  the file is stored in tempfs. The file must contain
-                                  a 256-bits (32 bytes, regardless of key length implied
-                                  by data-encryption-method) key encoded as hex string
-                                  and end with newline (\"\\n\"). Example: \n [security.encryption.master-key]
-                                  type = \"file\" path = \"/path/to/master/key/file\""
+                                  \  * \"plaintext\": \n     Plaintext as master key
+                                  means no master key is given and only applicable
+                                  when     encryption is not enabled, i.e. data-encryption-method
+                                  = \"plaintext\". This type doesn't     have sub-config
+                                  items. Example: \n     [security.encryption.master-key]
+                                  \    type = \"plaintext\" \n   * \"kms\": \n     Use
+                                  a KMS service to supply master key. Currently only
+                                  AWS KMS is supported. This type of     master key
+                                  is recommended for production use. Example: \n     [security.encryption.master-key]
+                                  \    type = \"kms\"     ## KMS CMK key id. Must
+                                  be a valid KMS CMK where the TiKV process has access
+                                  to.     ## In production is recommended to grant
+                                  access of the CMK to TiKV using IAM.     key-id
+                                  = \"1234abcd-12ab-34cd-56ef-1234567890ab\"     ##
+                                  AWS region of the KMS CMK.     region = \"us-west-2\"
+                                  \    ## (Optional) AWS KMS service endpoint. Only
+                                  required when non-default KMS endpoint is     ##
+                                  desired.     endpoint = \"https://kms.us-west-2.amazonaws.com\"
+                                  \n   * \"file\": \n     Supply a custom encryption
+                                  key stored in a file. It is recommended NOT to use
+                                  in production,     as it breaks the purpose of encryption
+                                  at rest, unless the file is stored in tempfs.     The
+                                  file must contain a 256-bits (32 bytes, regardless
+                                  of key length implied by     data-encryption-method)
+                                  key encoded as hex string and end with newline (\"\\n\").
+                                  Example: \n     [security.encryption.master-key]
+                                  \    type = \"file\"     path = \"/path/to/master/key/file\""
                                 properties:
                                   access-key:
                                     description: AccessKey of AWS user, leave empty
@@ -4631,7 +4635,6 @@ spec:
                 description: Cluster version
                 type: string
             required:
-            - listenersConfig
             - pd
             - tikv
             type: object
@@ -5038,7 +5041,6 @@ spec:
         required:
         - metadata
         - spec
-        - status
         type: object
     served: true
     storage: true
