@@ -70,4 +70,4 @@ generate: controller-gen## Generate code containing DeepCopy, DeepCopyInto, and 
 
 .PHONY: manifests
 manifests:## Generate CustomResourceDefinition objects.
-	$(CONTROLLER_GEN) crd paths="./..." output:crd:artifacts:config=manifests
+	$(CONTROLLER_GEN) crd:allowDangerousTypes=true paths="./..." output:crd:artifacts:config=config/crd/bases

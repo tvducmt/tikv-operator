@@ -163,7 +163,7 @@ type TikvClusterSpec struct {
 	// cluster component is needed to reload the configuration change.
 	// UpdateStrategyRollingUpdate will create a new ConfigMap with the new configuration and rolling-update the
 	// related components to use the new ConfigMap, that is, the new configuration will be applied automatically.
-	// +kubebuilder:validation:Enum=InPlace,RollingUpdate
+	// +kubebuilder:validation:Enum="InPlace,RollingUpdate"
 	// +kubebuilder:default=InPlacne
 	ConfigUpdateStrategy ConfigUpdateStrategy `json:"configUpdateStrategy,omitempty"`
 
