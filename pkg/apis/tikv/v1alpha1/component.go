@@ -21,6 +21,7 @@ const (
 	defaultHostNetwork = false
 )
 
+// +kubebuilder:object:generate=false
 // ComponentAccessor is the interface to access component details, which respects the cluster-level properties
 // and component-level overrides
 type ComponentAccessor interface {

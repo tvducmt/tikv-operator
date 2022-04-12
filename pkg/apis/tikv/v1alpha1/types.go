@@ -67,6 +67,8 @@ const (
 )
 
 // +genclient
+// +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
 // +k8s:openapi-gen=true
@@ -84,6 +86,7 @@ type TikvCluster struct {
 	Status TikvClusterStatus `json:"status"`
 }
 
+// +kubebuilder:object:root=true
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
 // +k8s:openapi-gen=true

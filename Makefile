@@ -61,11 +61,12 @@ e2e-examples:
 .PHONY: e2e-examples
 
 
-CONTROLLER_GEN = $(shell pwd)/bin/openapi-gen
+CONTROLLER_GEN = $(shell pwd)/bin/controller-gen
+controller-gen: ## Download controller-gen locally if necessary.
+	$(call go-get-tool,$(CONTROLLER_GEN),sigs.k8s.io/controller-tools/cmd/controller-gen@v0.4.1)
 
-.PHONY: generate
-generate: ## Generate code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations.
-	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate/boilerplate.go.txt" paths="./..." -o github.com/tikv/tikv-operator/pkg/apis/tikv/v1alpha1
+generate: controller-gen## Generate code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations.
+	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate/boilerplate.go.txt" paths="./..."
 
 .PHONY: manifests
 manifests:## Generate CustomResourceDefinition objects.
