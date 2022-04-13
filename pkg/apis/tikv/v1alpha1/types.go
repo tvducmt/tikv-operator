@@ -142,8 +142,6 @@ type TikvClusterSpec struct {
 	// TiKV cluster spec
 	TiKV TiKVSpec `json:"tikv"`
 
-	// +kubebuilder:validation:Optional
-	ListenersConfig ListenersConfig `json:"listenersConfig"`
 	// Indicates that the tikv cluster is paused and will not be processed by
 	// the controller.
 	// +optional
@@ -271,6 +269,9 @@ type PDSpec struct {
 	// +optional
 	Service *ServiceSpec `json:"service,omitempty"`
 
+	// +kubebuilder:validation:Optional
+	ListenersConfig ListenersConfig `json:"listenersConfig"`
+
 	// MaxFailoverCount limit the max replicas could be added in failover, 0 means no failover.
 	// Optional: Defaults to 3
 	// +kubebuilder:validation:Minimum=0
@@ -331,6 +332,9 @@ type TiKVSpec struct {
 	// Config is the Configuration of tikv-servers
 	// +optional
 	Config *TiKVConfig `json:"config,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	ListenersConfig ListenersConfig `json:"listenersConfig"`
 }
 
 // +k8s:openapi-gen=true

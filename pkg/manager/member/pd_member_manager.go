@@ -94,8 +94,36 @@ func NewPDMemberManager(pdControl pdapi.PDControlInterface,
 
 func (pmm *pdMemberManager) Sync(tc *v1alpha1.TikvCluster) error {
 	// Sync PD Service
-	if err := pmm.syncPDServiceForTikvCluster(tc); err != nil {
-		return err
+	svcList := []*corev1.Service{}
+	newSvc := pmm.getNewPDServiceForTikvCluster(tc)
+	svcList = append(svcList, newSvc)
+
+	if tc.Spec.PD.ListenersConfig.ExternalListeners != nil {
+		for _, eListener := range tc.Spec.PD.ListenersConfig.ExternalListeners {
+			if eListener.GetAccessMethod() == corev1.ServiceTypeNodePort {
+				pdLabel, err := label.New().Instance(tc.GetInstanceName()).PD().Selector()
+				if err != nil {
+					fmt.Println("pdMemberManager pdLabel err: ", err)
+					return err
+				}
+
+				pods, err := pmm.podLister.Pods(tc.GetNamespace()).List(pdLabel)
+				if err != nil {
+					fmt.Println("pdMemberManager podLister err: ", err)
+					return err
+				}
+
+				for idx, pod := range pods {
+					svcList = append(svcList, getNewNodeportServiceForTikvCluster(tc, int32(idx), eListener, pod.Status.HostIP, true))
+				}
+			}
+		}
+	}
+
+	for i := 0; i < len(svcList); i++ {
+		if err := pmm.syncPDServiceForTikvCluster(tc, svcList[i]); err != nil {
+			return err
+		}
 	}
 
 	// Sync PD Headless Service
@@ -107,17 +135,14 @@ func (pmm *pdMemberManager) Sync(tc *v1alpha1.TikvCluster) error {
 	return pmm.syncPDStatefulSetForTikvCluster(tc)
 }
 
-func (pmm *pdMemberManager) syncPDServiceForTikvCluster(tc *v1alpha1.TikvCluster) error {
+func (pmm *pdMemberManager) syncPDServiceForTikvCluster(tc *v1alpha1.TikvCluster, newSvc *corev1.Service) error {
 	if tc.Spec.Paused {
 		klog.V(4).Infof("tidb cluster %s/%s is paused, skip syncing for pd service", tc.GetNamespace(), tc.GetName())
 		return nil
 	}
 
 	ns := tc.GetNamespace()
-	tcName := tc.GetName()
-
-	newSvc := pmm.getNewPDServiceForTikvCluster(tc)
-	oldSvcTmp, err := pmm.svcLister.Services(ns).Get(controller.PDMemberName(tcName))
+	oldSvcTmp, err := pmm.svcLister.Services(ns).Get(newSvc.GetName())
 	if errors.IsNotFound(err) {
 		err = controller.SetServiceLastAppliedConfigAnnotation(newSvc)
 		if err != nil {

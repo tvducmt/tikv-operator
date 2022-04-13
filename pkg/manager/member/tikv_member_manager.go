@@ -118,14 +118,15 @@ func (tkmm *tikvMemberManager) Sync(tc *v1alpha1.TikvCluster) error {
 	}
 
 	svcList := []*corev1.Service{}
-	if tc.Spec.ListenersConfig.ExternalListeners != nil {
-		for _, eListener := range tc.Spec.ListenersConfig.ExternalListeners {
+	if tc.Spec.TiKV.ListenersConfig.ExternalListeners != nil {
+		for _, eListener := range tc.Spec.TiKV.ListenersConfig.ExternalListeners {
 			if eListener.GetAccessMethod() == corev1.ServiceTypeNodePort {
 				selector, _ := label.New().Instance(tc.GetInstanceName()).Selector()
 				fmt.Println("selector: ", selector)
 				labelsTikv, err := label.Label(LabelsTikv(tcName)).Selector()
 				if err != nil {
 					fmt.Println("labelsTikv err: ", err)
+					return err
 				}
 				fmt.Println("labelsTikv: ", labelsTikv)
 				pods, err := tkmm.podLister.Pods(ns).List(labelsTikv)
@@ -136,7 +137,7 @@ func (tkmm *tikvMemberManager) Sync(tc *v1alpha1.TikvCluster) error {
 					podName := pod.GetName()
 					nodePortExternalIP := pod.Status.HostIP
 					fmt.Printf("podName:%s, nodePortExternalIP: %s ", podName, nodePortExternalIP)
-					svcList = append(svcList, getNewNodeportServiceForTikvCluster(tc, int32(idx), eListener, nodePortExternalIP))
+					svcList = append(svcList, getNewNodeportServiceForTikvCluster(tc, int32(idx), eListener, nodePortExternalIP, false))
 				}
 			}
 		}

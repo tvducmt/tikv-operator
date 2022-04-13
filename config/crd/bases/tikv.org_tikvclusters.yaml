@@ -681,43 +681,6 @@ spec:
                 default: IfNotPresent
                 description: ImagePullPolicy of TiDB cluster Pods
                 type: string
-              listenersConfig:
-                description: ListenersConfig defines the Kafka listener types
-                properties:
-                  externalListeners:
-                    items:
-                      description: ExternalListenerConfig defines the external listener
-                        config
-                      properties:
-                        accessMethod:
-                          description: Service Type string describes ingress methods
-                            for a service
-                          type: string
-                        containerPort:
-                          format: int32
-                          type: integer
-                        externalStartingPort:
-                          format: int32
-                          type: integer
-                        name:
-                          type: string
-                        type:
-                          description: 'SecurityProtocol is the protocol used to communicate
-                            with brokers. Valid values are: plaintext, ssl, sasl_plaintext,
-                            sasl_ssl.'
-                          type: string
-                      required:
-                      - containerPort
-                      - externalStartingPort
-                      - name
-                      - type
-                      type: object
-                    type: array
-                  serviceAnnotations:
-                    additionalProperties:
-                      type: string
-                    type: object
-                type: object
               nodeSelector:
                 additionalProperties:
                   type: string
@@ -1955,6 +1918,43 @@ spec:
                       x-kubernetes-int-or-string: true
                     description: 'Limits describes the maximum amount of compute resources
                       allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/'
+                    type: object
+                  listenersConfig:
+                    description: ListenersConfig defines the Kafka listener types
+                    properties:
+                      externalListeners:
+                        items:
+                          description: ExternalListenerConfig defines the external
+                            listener config
+                          properties:
+                            accessMethod:
+                              description: Service Type string describes ingress methods
+                                for a service
+                              type: string
+                            containerPort:
+                              format: int32
+                              type: integer
+                            externalStartingPort:
+                              format: int32
+                              type: integer
+                            name:
+                              type: string
+                            type:
+                              description: 'SecurityProtocol is the protocol used
+                                to communicate with brokers. Valid values are: plaintext,
+                                ssl, sasl_plaintext, sasl_ssl.'
+                              type: string
+                          required:
+                          - containerPort
+                          - externalStartingPort
+                          - name
+                          - type
+                          type: object
+                        type: array
+                      serviceAnnotations:
+                        additionalProperties:
+                          type: string
+                        type: object
                     type: object
                   maxFailoverCount:
                     description: 'MaxFailoverCount limit the max replicas could be
@@ -4360,6 +4360,43 @@ spec:
                       x-kubernetes-int-or-string: true
                     description: 'Limits describes the maximum amount of compute resources
                       allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/'
+                    type: object
+                  listenersConfig:
+                    description: ListenersConfig defines the Kafka listener types
+                    properties:
+                      externalListeners:
+                        items:
+                          description: ExternalListenerConfig defines the external
+                            listener config
+                          properties:
+                            accessMethod:
+                              description: Service Type string describes ingress methods
+                                for a service
+                              type: string
+                            containerPort:
+                              format: int32
+                              type: integer
+                            externalStartingPort:
+                              format: int32
+                              type: integer
+                            name:
+                              type: string
+                            type:
+                              description: 'SecurityProtocol is the protocol used
+                                to communicate with brokers. Valid values are: plaintext,
+                                ssl, sasl_plaintext, sasl_ssl.'
+                              type: string
+                          required:
+                          - containerPort
+                          - externalStartingPort
+                          - name
+                          - type
+                          type: object
+                        type: array
+                      serviceAnnotations:
+                        additionalProperties:
+                          type: string
+                        type: object
                     type: object
                   maxFailoverCount:
                     description: 'MaxFailoverCount limit the max replicas could be
