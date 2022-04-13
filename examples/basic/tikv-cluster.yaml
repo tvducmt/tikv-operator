@@ -17,7 +17,7 @@ spec:
     config: {}
   tikv:
     baseImage: pingcap/tikv
-    replicas: 1
+    replicas: 3
     # if storageClassName is not set, the default Storage Class of the Kubernetes cluster will be used
     # storageClassName: local-storage
     requests:
@@ -29,5 +29,5 @@ spec:
         name: external
         externalListeners:
         accessMethod: NodePort
-        containerPort: 9094
-        externalStartingPort: 19040
+        containerPort: 9096
+        externalStartingPort: 19046

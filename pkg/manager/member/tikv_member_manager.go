@@ -119,10 +119,8 @@ func (tkmm *tikvMemberManager) Sync(tc *v1alpha1.TikvCluster) error {
 
 	svcList := []*corev1.Service{}
 	if tc.Spec.ListenersConfig.ExternalListeners != nil {
-		fmt.Println("tc.Spec.ListenersConfig.ExternalListeners")
 		for _, eListener := range tc.Spec.ListenersConfig.ExternalListeners {
 			if eListener.GetAccessMethod() == corev1.ServiceTypeNodePort {
-				fmt.Println("Implementing...")
 				selector, _ := label.New().Instance(tc.GetInstanceName()).Selector()
 				fmt.Println("selector: ", selector)
 				labelsTikv, err := label.Label(LabelsTikv(tcName)).Selector()
@@ -137,7 +135,7 @@ func (tkmm *tikvMemberManager) Sync(tc *v1alpha1.TikvCluster) error {
 				for idx, pod := range pods {
 					podName := pod.GetName()
 					nodePortExternalIP := pod.Status.HostIP
-					fmt.Println("podName: ", podName, nodePortExternalIP)
+					fmt.Printf("podName:%s, nodePortExternalIP: %s ", podName, nodePortExternalIP)
 					svcList = append(svcList, getNewNodeportServiceForTikvCluster(tc, int32(idx), eListener, nodePortExternalIP))
 				}
 			}
@@ -171,10 +169,8 @@ func (tkmm *tikvMemberManager) syncServiceForTikvCluster(tc *v1alpha1.TikvCluste
 	}
 
 	ns := tc.GetNamespace()
-	fmt.Println("newSvc.GetName(): ", newSvc.GetName())
 
 	oldSvcTmp, err := tkmm.svcLister.Services(ns).Get(newSvc.GetName())
-	fmt.Println("oldSvcTmp: ", oldSvcTmp.GetName())
 	if errors.IsNotFound(err) {
 		err = controller.SetServiceLastAppliedConfigAnnotation(newSvc)
 		if err != nil {

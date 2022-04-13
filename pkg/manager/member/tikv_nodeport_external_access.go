@@ -32,7 +32,7 @@ func getNewNodeportServiceForTikvCluster(tc *v1alpha1.TikvCluster, id int32, ext
 					Name:       fmt.Sprintf("basic-tikv-%d", id),
 					Port:       extListener.ContainerPort,
 					NodePort:   nodePort,
-					TargetPort: intstr.FromInt(int(extListener.ContainerPort)),
+					TargetPort: intstr.FromInt(int(20160)),
 					Protocol:   corev1.ProtocolTCP,
 				},
 			},
