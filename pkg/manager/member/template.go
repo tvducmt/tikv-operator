@@ -153,7 +153,7 @@ ARGS="--data-dir=/var/lib/pd \
 --peer-urls={{ .Scheme }}://0.0.0.0:2380 \
 --advertise-peer-urls={{ .Scheme }}://${domain}:2380 \
 --client-urls={{ .Scheme }}://0.0.0.0:2379 \
---advertise-client-urls={{ .Scheme }}://${domain}:2379 \
+--advertise-client-urls={{ .Scheme }}://${HostIP}:2379 \
 --config=/etc/pd/pd.toml \
 "
 

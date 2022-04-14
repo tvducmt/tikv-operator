@@ -664,6 +664,14 @@ func getNewPDSetForTikvCluster(tc *v1alpha1.TikvCluster, cm *corev1.ConfigMap) (
 			Name:  "TZ",
 			Value: tc.Spec.Timezone,
 		},
+		{
+			Name: "HostIP",
+			ValueFrom: &corev1.EnvVarSource{
+				FieldRef: &corev1.ObjectFieldSelector{
+					FieldPath: "status.hostIP",
+				},
+			},
+		},
 	}
 
 	podSpec := basePDSpec.BuildPodSpec()
