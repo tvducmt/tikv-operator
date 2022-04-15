@@ -46,15 +46,16 @@ func getNewNodeportServiceForTikvCluster(tc *v1alpha1.TikvCluster, id int32, ext
 			},
 		}
 	} else {
+		lbTikv := label.New().Instance(tcName).TiKV().Labels()
 		svc = corev1.Service{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:            fmt.Sprintf("%s-tikv-%d-%s", tcName, id, extListener.Name),
-				Labels:          MergeLabels(LabelsTikv(tcName), map[string]string{"statefulset.kubernetes.io/pod-name": fmt.Sprintf("basic-tikv-%d", id)}),
+				Labels:          MergeLabels(lbTikv, map[string]string{"statefulset.kubernetes.io/pod-name": fmt.Sprintf("basic-tikv-%d", id)}),
 				Namespace:       tc.Namespace,
 				OwnerReferences: []metav1.OwnerReference{controller.GetOwnerRef(tc)},
 			},
 			Spec: corev1.ServiceSpec{
-				Selector: MergeLabels(LabelsTikv(tcName), map[string]string{"statefulset.kubernetes.io/pod-name": fmt.Sprintf("basic-tikv-%d", id)}),
+				Selector: MergeLabels(lbTikv, map[string]string{"statefulset.kubernetes.io/pod-name": fmt.Sprintf("basic-tikv-%d", id)}),
 				Type:     corev1.ServiceTypeNodePort,
 				Ports: []corev1.ServicePort{
 					{

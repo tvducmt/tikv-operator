@@ -345,9 +345,3 @@ func MergeLabels(l ...map[string]string) map[string]string {
 	}
 	return res
 }
-
-// LabelsTikv returns the labels for selecting the resources
-// belonging to the given tikv CR name.
-func LabelsTikv(name string) map[string]string {
-	return map[string]string{"app.kubernetes.io/component": "tikv", "app.kubernetes.io/instance": "basic"}
-}

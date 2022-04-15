@@ -33,10 +33,8 @@ all: build
 
 verify: 
 	./hack/verify-all.sh
-.PHONY: verify
 
 build: $(ALL_TARGETS)
-.PHONY: all
 
 $(ALL_TARGETS): GOOS = $(OS)
 $(ALL_TARGETS): GOARCH = $(ARCH)
@@ -69,12 +67,11 @@ controller-gen: ## Download controller-gen locally if necessary.
 generate: controller-gen## Generate code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations.
 	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate/boilerplate.go.txt" paths="./..."
 
-.PHONY: manifests
 manifests:## Generate CustomResourceDefinition objects.
 	$(CONTROLLER_GEN) $(CRD_OPTIONS) paths="./..." output:crd:artifacts:config=config/crd/bases
 
-
 uninstall:
 	helm uninstall tikv-operator
+
 install: docker-deploy
 	helm install tikv-operator charts/tikv-operator
