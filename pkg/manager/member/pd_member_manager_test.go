@@ -1054,6 +1054,14 @@ func TestGetNewPDSetForTikvCluster(t *testing.T) {
 					Name: "TZ",
 				},
 				{
+					Name: "HostIP",
+					ValueFrom: &corev1.EnvVarSource{
+						FieldRef: &corev1.ObjectFieldSelector{
+							FieldPath: "status.hostIP",
+						},
+					},
+				},
+				{
 					Name: "DASHBOARD_SESSION_SECRET",
 					ValueFrom: &corev1.EnvVarSource{
 						SecretKeyRef: &corev1.SecretKeySelector{
